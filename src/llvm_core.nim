@@ -16,7 +16,7 @@
 ## tools written in such languages.
 
 import llvm_support
-export Bool
+export Bool, MemoryBufferRef
 
 include llvm_lib
 
