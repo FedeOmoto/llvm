@@ -1,104 +1,96 @@
-import 
-  llvm_analysis, llvm_core, llvm_support,
-  llvm_bitreader, llvm_disassembler, llvm_targetmachine,
-  llvm_bitwriter, llvm_executionengine, llvm_target,
-  strutils, os
+import
+  llvm_core, llvm_analysis, llvm_executionengine, llvm_target, os, strutils
 
-const
-  ReleaseMode = gorge("llvm-config --build-mode") == "Release"
-  Targets = gorge("llvm-config --targets-built").split(' ')
-
-proc main =
-
-  for T in Targets:
-    echo "Target available: ", T
-
-  linkInJIT()
+proc factorial =
+  linkInMCJIT()
   discard initializeNativeTarget()
+  discard initializeNativeAsmPrinter()
   
   let module = moduleCreateWithName("fac_module")
 
-  var fac_args = [int32Type()]
-  var fac = addFunction(module, "fac", functionType(
-    int32Type(), fac_args[0].addr, 1, 0))
-  setFunctionCallConv(fac, CCallConv.cuint)
-  var n = getParam(fac,0)
+  var facArgs = [int32Type()]
+  var facType = functionType(int32Type(), facArgs[0].addr, 1, 0)
+  var fac = module.addFunction("fac", facType)
+  fac.setFunctionCallConv(CCallConv)
+  var n = fac.getParam(0)
 
   var
-    entry = appendBasicBlock(fac,"entry")
-    iftrue = appendBasicBlock(fac,"iftrue")
-    iffalse = appendBasicBlock(fac,"iffalse")
-    endx = appendBasicBlock(fac,"end")
+    entry = fac.appendBasicBlock("entry")
+    ifTrue = fac.appendBasicBlock("iftrue")
+    ifFalse = fac.appendBasicBlock("iffalse")
+    endBB = fac.appendBasicBlock("end")
     builder = createBuilder()
 
-  positionBuilderAtEnd(builder,entry)
-  var ifcmp = buildICmp(builder, IntEQ, n,
-    constInt(int32Type(), 0,0), "n == 0")
-  discard buildCondBr(builder,ifcmp,iftrue,iffalse)
+  builder.positionBuilderAtEnd(entry)
+  var ifCmp = builder.buildICmp(IntEQ, n, constInt(int32Type(), 0, 0), "n == 0")
+  discard builder.buildCondBr(ifCmp, ifTrue, ifFalse)
 
-  positionBuilderAtEnd(builder,iftrue)
-  let res_iftrue = constInt(int32Type(),1,0)
-  discard buildBr(builder,endx)
+  builder.positionBuilderAtEnd(ifTrue)
+  let resIfTrue = constInt(int32Type(), 1, 0)
+  discard builder.buildBr(endBB)
 
-  positionBuilderAtEnd(builder,iffalse)
+  builder.positionBuilderAtEnd(ifFalse)
   var
-    n_minus = buildSub(builder,n, constInt(int32Type(),1,0), "n - 1")
-    call_fac_args = [n_minus]
-    call_fac = buildCall(builder,fac,call_fac_args[0].addr,1,"fac(n - 1)")
-    res_iffalse = buildMul(builder,n,call_fac, "n * fac(n - 1)")
-  discard buildBR(builder,endx)
+    nMinus = builder.buildSub(n, constInt(int32Type(), 1, 0), "n - 1")
+    callFacArgs = [nMinus]
+    callFac = builder.buildCall(fac, callFacArgs[0].addr, 1, "fac(n - 1)")
+    resIfFalse = builder.buildMul(n, callFac, "n * fac(n - 1)")
+  discard builder.buildBr(endBB)
 
-  positionBuilderAtEnd(builder,endx)
+  builder.positionBuilderAtEnd(endBB)
   var
-    res = buildPhi(builder, int32Type(), "result")
-    phi_vals = [res_iftrue, res_iffalse]
-    phi_blocks = [iftrue, iffalse]
-  addIncoming(res, phi_vals[0].addr, phi_blocks[0].addr, 2)
-  discard buildRet(builder,res)
+    res = builder.buildPhi(int32Type(), "result")
+    phiVals = [resIfTrue, resIfFalse]
+    phiBlocks = [ifTrue, ifFalse]
+  res.addIncoming(phiVals[0].addr, phiBlocks[0].addr, 2)
+  discard builder.buildRet(res)
 
   var error: cstring
-  let error_p = cast[cstringarray](addr error)
+  let errorP = cast[cstringArray](error.addr)
 
-  echo verifyModule(module, AbortProcessAction, error_p)
-  if not error.isNil:
-    echo error
+  discard verifyModule(module, AbortProcessAction, errorP)
   disposeMessage(error)
-  error = nil
+
+  var opts: MCJITCompilerOptions
+  initializeMCJITCompilerOptions(opts.addr, sizeOf(opts))
+  opts.optLevel = 2
 
   var engine: ExecutionEngineRef
-  let
-    provider = createModuleProviderForExistingModule(module)
-  if createJITCompiler(engine.addr, provider, 2, error_p) != 0:
-    echo error[0]
+  error = nil
+  if createMCJITCompilerForModule(engine.addr, module, opts.addr, sizeOf(opts),
+                                  errorP) != 0:
+    stderr.write($error & "\n")
     disposeMessage(error)
     quit 1
 
-  let
-    pass = createPassManager()
-  addTargetData(getExecutionEngineTargetData(engine), pass)
+  let pass = createPassManager()
+  addTargetData(engine.getExecutionEngineTargetData(), pass)
   # TODO
-  # addConstantPropagationPass(pass)
-  # addInstructionCombiningPass(pass)
-  # addPromoteMemoryToRegisterPass(pass)
-  # addGVNPass(pass)
-  # addCFGSimplificationPass(pass)
-  echo runPassManager(pass, module)
+  # pass.addConstantPropagationPass()
+  # pass.addInstructionCombiningPass()
+  # pass.addPromoteMemoryToRegisterPass()
+  # pass.addGVNPass()
+  # pass.addCFGSimplificationPass()
+  discard pass.runPassManager(module)
+
   dumpModule(module)
 
-  var N = 5
+  var num = 10
   if paramCount() > 0:
     try:
-      N = parseInt(paramStr(1))
+      num = parseInt(paramStr(1))
     except:
       discard
 
   var
-    exec_args = [createGenericValueOfInt(int32Type(), N.culonglong, 0)]
-    exec_res = runFunction(engine,fac,1, exec_args[0].addr)
-  echo "Result: factorial(",N,") = ", genericValueToInt(exec_res, 0)
+    execArgs = [createGenericValueOfInt(int32Type(), num.culonglong, 0)]
+    execRes = engine.runFunction(fac, 1, execArgs[0].addr)
 
-  disposePassManager(pass)
-  disposeBuilder(builder)
-  disposeExecutionEngine(engine)
+  echo "\nRunning factorial(" & $num & ") with JIT..."
+  echo "Result: " & $execRes.genericValueToInt(0)
 
-main()
+  pass.disposePassManager()
+  engine.disposeExecutionEngine()
+  builder.disposeBuilder()
+
+factorial()

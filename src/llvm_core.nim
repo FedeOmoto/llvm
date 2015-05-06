@@ -1549,7 +1549,7 @@ proc getFunctionCallConv*(fn: ValueRef): cuint {.
   ##
   ## The returned value corresponds to the LLVMCallConv enumeration.
 
-proc setFunctionCallConv*(fn: ValueRef, cc: cuint) {.
+proc setFunctionCallConv*(fn: ValueRef, cc: CallConv) {.
   importc: "LLVMSetFunctionCallConv", libllvm.}
   ## Set the calling convention of a function.
 
@@ -1954,7 +1954,7 @@ proc createBuilder*: BuilderRef {.importc: "LLVMCreateBuilder", libllvm.}
 proc positionBuilder*(builder: BuilderRef, bb: BasicBlockRef, instr: ValueRef) {.
   importc: "LLVMPositionBuilder", libllvm.}
 
-proc PositionBuilderBefore*(builder: BuilderRef, instr: ValueRef) {.
+proc positionBuilderBefore*(builder: BuilderRef, instr: ValueRef) {.
   importc: "LLVMPositionBuilderBefore", libllvm.}
 
 proc positionBuilderAtEnd*(builder: BuilderRef, bb: BasicBlockRef) {.
@@ -2370,9 +2370,9 @@ proc disposeMemoryBuffer*(memBuf: MemoryBufferRef) {.
 
 # Pass Registry
 
-## Return the global pass registry, for use with initialization functions.
 proc getGlobalPassRegistry*: PassRegistryRef {.
   importc: "LLVMGetGlobalPassRegistry", libllvm.}
+  ## Return the global pass registry, for use with initialization functions.
 
 # Pass Managers
 

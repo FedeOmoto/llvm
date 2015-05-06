@@ -29,7 +29,7 @@ const DefPath = defPath()
 #      for match in matches:
 #        if match != nil: targets.add(match)
 #      break
-#  result = parseStmt("const " & suffix.strVal & "s = " & repr(targets))
+#  result = parseStmt("const " & suffix.strVal & "s* = " & repr(targets))
 
 macro targetsFor(suffix: string): stmt =
   var targets = newSeq[string]()
@@ -40,11 +40,11 @@ macro targetsFor(suffix: string): stmt =
         var target = str.split('(')
         if target.len == 2: targets.add(target[1])
       break
-  result = parseStmt("const " & suffix.strVal & "s = " & repr(targets))
+  result = parseStmt("const " & suffix.strVal & "s* = " & repr(targets))
 
 # Target information
 
-const Targets = gorge("llvm-config --targets-built").strip.split(' ')
+const Targets* = gorge("llvm-config --targets-built").strip.split(' ')
 
 targetsFor("AsmPrinter")
 targetsFor("AsmParser")
@@ -68,6 +68,8 @@ macro declareTargetProcs(targets: static[openArray[string]], suffix: string): st
            "initialize$1$2()\n") % [target, suffix.strVal]
   result = parseStmt(src)
 
+{.push hints: off.}
+
 # Declare all of the target-initialization functions that are available.
 declareTargetProcs(Targets, "TargetInfo")
 declareTargetProcs(Targets, "Target")
@@ -81,6 +83,8 @@ declareTargetProcs(AsmParsers, "AsmParser")
 
 # Declare all of the available disassembler initialization functions.
 declareTargetProcs(Disassemblers, "Disassembler")
+
+{.pop.}
 
 macro defineTargetProcBody(targets: static[openArray[string]], suffix: string): stmt =
   var src = ""

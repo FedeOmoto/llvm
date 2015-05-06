@@ -10,7 +10,7 @@ import llvm_core, llvm_target, llvm_targetmachine
 include llvm_lib
 
 when defined(static_link):
-  {.passL: gorge("llvm-config --libs executionengine").}
+  {.passL: gorge("llvm-config --libs mcjit").}
 
 # Execution Engine
 
