@@ -635,7 +635,7 @@ proc ppcFP128Type*: TypeRef {.importc: "LLVMPPCFP128Type", libllvm.}
 
 # Function Types
 
-proc functionType*(returnType: TypeRef, paramTypes: TypeRef, paramCount: cuint,
+proc functionType*(returnType: TypeRef, paramTypes: ptr TypeRef, paramCount: cuint,
                    isVarArg: Bool): TypeRef {.importc: "LLVMFunctionType",
                                              libllvm.}
   ## Obtain a function type consisting of a specified signature.
