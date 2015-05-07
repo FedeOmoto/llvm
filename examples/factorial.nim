@@ -1,5 +1,6 @@
 import
-  llvm_core, llvm_analysis, llvm_executionengine, llvm_target, os, strutils
+  llvm_core, llvm_analysis, llvm_executionengine, llvm_target,
+  transforms/llvm_scalar, os, strutils
 
 proc factorial =
   linkInMCJIT()
@@ -65,15 +66,14 @@ proc factorial =
 
   let pass = createPassManager()
   addTargetData(engine.getExecutionEngineTargetData(), pass)
-  # TODO
-  # pass.addConstantPropagationPass()
-  # pass.addInstructionCombiningPass()
-  # pass.addPromoteMemoryToRegisterPass()
-  # pass.addGVNPass()
-  # pass.addCFGSimplificationPass()
+  pass.addConstantPropagationPass()
+  pass.addInstructionCombiningPass()
+  pass.addPromoteMemoryToRegisterPass()
+  pass.addGVNPass()
+  pass.addCFGSimplificationPass()
   discard pass.runPassManager(module)
 
-  dumpModule(module)
+  module.dumpModule()
 
   var num = 10
   if paramCount() > 0:
