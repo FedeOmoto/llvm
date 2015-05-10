@@ -41,24 +41,46 @@ var
   LLVM_NATIVE_ARCH* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
     ## LLVM architecture name for the native architecture, if available
 
-  LLVM_NATIVE_ASMPARSER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native AsmParser init function, if available
+when defined(dynamic_link) or defined(static_link):
+  var
+    LLVM_NATIVE_ASMPARSER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native AsmParser init function, if available
 
-  LLVM_NATIVE_ASMPRINTER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native AsmPrinter init function, if available
+    LLVM_NATIVE_ASMPRINTER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native AsmPrinter init function, if available
 
-  LLVM_NATIVE_DISASSEMBLER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native Disassembler init function, if available
+    LLVM_NATIVE_DISASSEMBLER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native Disassembler init function, if available
 
-  LLVM_NATIVE_TARGET* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native Target init function, if available
+    LLVM_NATIVE_TARGET* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native Target init function, if available
 
-  LLVM_NATIVE_TARGETINFO* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native TargetInfo init function, if available
+    LLVM_NATIVE_TARGETINFO* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native TargetInfo init function, if available
 
-  LLVM_NATIVE_TARGETMC* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
-    ## LLVM name for the native target MC init function, if available
+    LLVM_NATIVE_TARGETMC* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.cdecl.}
+      ## LLVM name for the native target MC init function, if available
+else:
+  var
+    LLVM_NATIVE_ASMPARSER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native AsmParser init function, if available
 
+    LLVM_NATIVE_ASMPRINTER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native AsmPrinter init function, if available
+
+    LLVM_NATIVE_DISASSEMBLER* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native Disassembler init function, if available
+
+    LLVM_NATIVE_TARGET* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native Target init function, if available
+
+    LLVM_NATIVE_TARGETINFO* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native TargetInfo init function, if available
+
+    LLVM_NATIVE_TARGETMC* {.importc, header: "<llvm/Config/llvm-config.h>".}: proc () {.nimcall.}
+      ## LLVM name for the native target MC init function, if available
+
+var
   LLVM_ON_UNIX* {.importc, header: "<llvm/Config/llvm-config.h>".}: cint
     ## Define if this is Unixish platform
 

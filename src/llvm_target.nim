@@ -55,14 +55,19 @@ type
 type
   TargetDataRef* = ptr object
   TargetLibraryInfoRef* = ptr object
-  
+
 macro declareTargetProcs(targets: static[openArray[string]], suffix: string): stmt =
   var src = ""
   for target in targets:
-    src &= ("proc initialize$1$2* {.importc: \"LLVMInitialize$1$2\", " &
-           "libllvm.}\n") % [target, suffix.strVal]
-    src &= ("proc LLVMInitialize$1$2 {.extern: \"LLVMInitialize$1$2\".} = " &
-           "initialize$1$2()\n") % [target, suffix.strVal]
+    when defined(dynamic_link) or defined(static_link):
+      src &= ("proc LLVMInitialize$1$2 {.importc: \"LLVMInitialize$1$2\", " &
+             "libllvm.}\n") % [target, suffix.strVal]
+      src &= ("proc initialize$1$2* = LLVMInitialize$1$2()\n") % [target, suffix.strVal]
+    else:
+      src &= ("proc initialize$1$2* {.importc: \"LLVMInitialize$1$2\", " &
+             "libllvm.}\n") % [target, suffix.strVal]
+      src &= ("proc LLVMInitialize$1$2 {.extern: \"LLVMInitialize$1$2\".} = " &
+             "initialize$1$2()\n") % [target, suffix.strVal]
   result = parseStmt(src)
 
 {.push hints: off.}

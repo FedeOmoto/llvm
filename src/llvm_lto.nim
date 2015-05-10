@@ -158,7 +158,7 @@ proc moduleGetLinkeropt*(module: Module, index: cuint): cstring {.
 type codegenDiagnosticSeverity* = enum ## Diagnostic severity.
   DSError   = 0
   DSWarning = 1
-  DSNite    = 2
+  DSNote    = 2
   DSRemark  = 3
 
 type
