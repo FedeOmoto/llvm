@@ -9,9 +9,6 @@ import llvm_core, macros, strutils#, pegs
 
 include llvm_lib, llvm_config
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs target").}
-
 proc defPath(): string =
   result = ".."
   for i in 3..currentSourcePath.count("/"):

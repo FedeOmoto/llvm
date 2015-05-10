@@ -9,9 +9,6 @@ import llvm_core
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs bitreader").}
-
 # Bit Reader
 
 proc parseBitcode*(memBuf: MemoryBufferRef, outModule: ptr ModuleRef,

@@ -8,7 +8,8 @@ when defined(dynamic_link) or defined(static_link):
   when defined(dynamic_link): # Dynamic linking
     {.passL: ldflags & "-l" & libname.}
   else: # Static linking
-    {.passL: gorge("llvm-config --system-libs") & "-lstdc++ " & ldflags.}
+    {.passL: gorge("llvm-config --system-libs") & "-lstdc++ " & ldflags &
+     gorge("llvm-config --libs").}
 else: # Dynamic loading
   when defined(windows): 
     const dllname = ""

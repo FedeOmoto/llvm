@@ -2,9 +2,6 @@
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs support").}
-
 type Bool* = cint
 
 type MemoryBufferRef* = ptr object

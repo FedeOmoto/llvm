@@ -9,9 +9,6 @@ import llvm_core, llvm_target
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs target").}
-
 type
   TargetMachineRef* = ptr object
   TargetRef* = ptr object

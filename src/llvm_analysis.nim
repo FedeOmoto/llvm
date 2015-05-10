@@ -9,9 +9,6 @@ import llvm_core
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs analysis").}
-
 # Analysis
 
 type VerifierFailureAction* = enum  ## Verifier Failure Action.

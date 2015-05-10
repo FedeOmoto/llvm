@@ -4,9 +4,6 @@ import llvm_core
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs irreader").}
-
 proc parseIRInContext*(contextRef: ContextRef, memBuf: MemoryBufferRef,
                        outM: ptr ModuleRef, outMessage: cstringArray): Bool {.
   importc: "LLVMParseIRInContext", libllvm.}

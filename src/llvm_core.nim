@@ -20,9 +20,6 @@ export Bool, MemoryBufferRef
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs core").}
-
 # Opaque types.
 type
   ContextRef* = ptr object

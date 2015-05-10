@@ -9,9 +9,6 @@ import llvm_core
 
 include llvm_lib
 
-when defined(static_link):
-  {.passL: gorge("llvm-config --libs bitwriter").}
-
 # Bit Writer
 
 proc writeBitcodeToFile*(m: ModuleRef, path: cstring): cint {.
