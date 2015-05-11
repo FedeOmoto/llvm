@@ -1,4 +1,5 @@
-const libname = "LLVM-3.5"
+when not defined(static_link):
+  const libname = "LLVM-3.5"
 
 {.passC: gorge("llvm-config --cflags").}
 

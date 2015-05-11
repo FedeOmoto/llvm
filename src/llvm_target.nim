@@ -1,3 +1,4 @@
+{.deadCodeElim: off.}
 ## This header declares the C interface to libLLVMTarget.a, which
 ## implements target information.
 ##
@@ -66,8 +67,8 @@ macro declareTargetProcs(targets: static[openArray[string]], suffix: string): st
     else:
       src &= ("proc initialize$1$2* {.importc: \"LLVMInitialize$1$2\", " &
              "libllvm.}\n") % [target, suffix.strVal]
-      src &= ("proc LLVMInitialize$1$2 {.extern: \"LLVMInitialize$1$2\".} = " &
-             "initialize$1$2()\n") % [target, suffix.strVal]
+      src &= ("proc LLVMInitialize$1$2 {.exportc.} = initialize$1$2()\n") %
+             [target, suffix.strVal]
   result = parseStmt(src)
 
 {.push hints: off.}
