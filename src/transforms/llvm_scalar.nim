@@ -5,9 +5,9 @@
 ## with C++ due to name mangling. So in addition to C, this interface enables
 ## tools written in such languages.
 
-import llvm_core
+import ../llvm_core
 
-include llvm_lib
+include ../llvm_lib
 
 # Scalar transformations
 

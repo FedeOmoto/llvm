@@ -9,12 +9,11 @@ import llvm_core, macros, strutils#, pegs
 
 include llvm_lib, llvm_config
 
-proc defPath(): string =
+proc defPath(): string {.compileTime.} =
   result = ".."
   for i in 3..currentSourcePath.count("/"):
     result &= "/.."
-  #result &= $LLVM_INCLUDEDIR & "/llvm/Config/"
-  result &= "/usr/include/llvm/Config/"
+  result &= gorge("llvm-config --includedir") & "/llvm/Config/"
 
 const DefPath = defPath()
 

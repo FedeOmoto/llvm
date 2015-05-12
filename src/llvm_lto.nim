@@ -17,9 +17,9 @@ when defined(dynamic_link) or defined(static_link):
      libdir & "/lib" & libname & ".a " & gorge("llvm-config --libs").}
 else: # Dynamic loading
   when defined(windows):
-    const dllname = ""
+    const dllname =  libname & ".dll"
   elif defined(macosx):
-    const dllname = ""
+    const dllname = "lib" & libname & ".dylib"
   else:
     const dllname = "lib" & libname & ".so"
   {.pragma: liblto, cdecl, dynlib: dllname.}
