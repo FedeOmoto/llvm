@@ -1,4 +1,3 @@
-{.deadCodeElim: off.}
 ## This header declares the C interface to libLLVMTarget.a, which
 ## implements target information.
 ##
@@ -71,8 +70,6 @@ macro declareTargetProcs(targets: static[openArray[string]], suffix: string): st
              [target, suffix.strVal]
   result = parseStmt(src)
 
-{.push hints: off.}
-
 # Declare all of the target-initialization functions that are available.
 declareTargetProcs(Targets, "TargetInfo")
 declareTargetProcs(Targets, "Target")
@@ -86,8 +83,6 @@ declareTargetProcs(AsmParsers, "AsmParser")
 
 # Declare all of the available disassembler initialization functions.
 declareTargetProcs(Disassemblers, "Disassembler")
-
-{.pop.}
 
 macro defineTargetProcBody(targets: static[openArray[string]], suffix: string): stmt =
   var src = ""
