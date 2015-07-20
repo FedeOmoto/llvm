@@ -1,21 +1,21 @@
 import
-  llvm_core, llvm_analysis, llvm_executionengine, llvm_target,
-  transforms/llvm_scalar, os, strutils
+  llvm_core, llvm_analysis, llvm_executionengine, llvm_targetmachine,
+  llvm_target, transforms/llvm_scalar, os, strutils
 
 proc factorial =
   linkInMCJIT()
   discard initializeNativeTarget()
   discard initializeNativeAsmPrinter()
-  
+
   let module = moduleCreateWithName("fac_module")
 
   var facArgs = [int32Type()]
-  var facType = functionType(int32Type(), facArgs[0].addr, 1, 0)
-  var fac = module.addFunction("fac", facType)
+  let facType = functionType(int32Type(), facArgs[0].addr, 1, 0)
+  let fac = module.addFunction("fac", facType)
   fac.setFunctionCallConv(CCallConv)
-  var n = fac.getParam(0)
+  let n = fac.getParam(0)
 
-  var
+  let
     entry = fac.appendBasicBlock("entry")
     ifTrue = fac.appendBasicBlock("iftrue")
     ifFalse = fac.appendBasicBlock("iffalse")
@@ -23,7 +23,7 @@ proc factorial =
     builder = createBuilder()
 
   builder.positionBuilderAtEnd(entry)
-  var ifCmp = builder.buildICmp(IntEQ, n, constInt(int32Type(), 0, 0), "n == 0")
+  let ifCmp = builder.buildICmp(IntEQ, n, constInt(int32Type(), 0, 0), "n == 0")
   discard builder.buildCondBr(ifCmp, ifTrue, ifFalse)
 
   builder.positionBuilderAtEnd(ifTrue)
@@ -55,6 +55,9 @@ proc factorial =
   var opts: MCJITCompilerOptions
   initializeMCJITCompilerOptions(opts.addr, sizeOf(opts))
   opts.optLevel = 2
+  opts.enableFastISel = 1
+  opts.noFramePointerElim = 1
+  opts.codeModel = CodeModelJITDefault
 
   var engine: ExecutionEngineRef
   error = nil
