@@ -66,7 +66,12 @@ proc callNimProc =
 
   module.dumpModule()
 
-  discard engine.runFunction(nimCall, 0, nil)
+  # Slower
+  #discard engine.runFunction(nimCall, 0, nil)
+
+  # Faster
+  let nimCallProc: proc () {.cdecl.} = cast[proc () {.cdecl.}](engine.getPointerToGlobal(nimCall))
+  nimCallProc()
 
   pass.disposePassManager()
   engine.disposeExecutionEngine()
