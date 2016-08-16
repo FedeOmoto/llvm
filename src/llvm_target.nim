@@ -13,7 +13,7 @@ proc defPath(): string {.compileTime.} =
   result = ".."
   for i in 3..currentSourcePath.count("/"):
     result &= "/.."
-  result &= gorge("llvm-config --includedir") & "/llvm/Config/"
+  result &= gorge("llvm-config-3.5 --includedir") & "/llvm/Config/"
 
 const DefPath = defPath()
 
@@ -40,7 +40,7 @@ macro targetsFor(suffix: string): stmt =
 
 # Target information
 
-const Targets* = gorge("llvm-config --targets-built").strip.split(' ')
+const Targets* = gorge("llvm-config-3.5 --targets-built").strip.split(' ')
 
 targetsFor("AsmPrinter")
 targetsFor("AsmParser")
