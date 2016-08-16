@@ -4,17 +4,17 @@
 
 const libname = "LTO"
 
-{.passC: gorge("llvm-config --cflags").}
+{.passC: gorge("llvm-config-3.5 --cflags").}
 
 when defined(dynamic_link) or defined(static_link):
-  const ldflags = gorge("llvm-config --ldflags")
+  const ldflags = gorge("llvm-config-3.5 --ldflags")
   {.pragma: liblto, cdecl.}
   when defined(dynamic_link): # Dynamic linking
     {.passL: ldflags & "-l" & libname.}
   else: # Static linking
-    const libdir = gorge("llvm-config --libdir")
-    {.passL: gorge("llvm-config --system-libs") & "-lstdc++ " & ldflags &
-     libdir & "/lib" & libname & ".a " & gorge("llvm-config --libs").}
+    const libdir = gorge("llvm-config-3.5 --libdir")
+    {.passL: gorge("llvm-config-3.5 --system-libs") & "-lstdc++ " & ldflags &
+     libdir & "/lib" & libname & ".a " & gorge("llvm-config-3.5 --libs").}
 else: # Dynamic loading
   when defined(windows):
     const dllname =  libname & ".dll"
